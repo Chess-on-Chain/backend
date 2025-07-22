@@ -1,0 +1,62 @@
+type HttpHeader = record { value : text; name : text };
+type HttpResponse = record {
+  status : nat;
+  body : blob;
+  headers : vec HttpHeader;
+};
+type HttpTransformArgs = record { context : blob; response : HttpResponse };
+type Match = record {
+  id : text;
+  fen : text;
+  moves : vec Move;
+  timer : opt nat64;
+  time : nat64;
+  winner : text;
+  is_ranked : bool;
+  black_player : principal;
+  white_player : principal;
+  is_white_turn : bool;
+};
+type MatchResult = record {
+  id : text;
+  fen : text;
+  moves : vec Move;
+  winner : text;
+  is_ranked : bool;
+  black_player : User;
+  white_player : User;
+};
+type MatchResultHistory = record {
+  id : text;
+  fen : text;
+  moves : vec Move;
+  winner : text;
+  is_ranked : bool;
+  black_player : principal;
+  white_player : principal;
+};
+type Move = record { time : nat64; to_position : text; from_position : text };
+type Player = record { signature : text; expired : nat32; pubkey : text };
+type User = record {
+  id : principal;
+  win : nat32;
+  draw : nat32;
+  lost : nat32;
+  is_banned : bool;
+};
+service : () -> {
+  accept_ownership : () -> ();
+  add_match : (Player, Player, bool) -> (Match);
+  add_match_move : (text, text, text, text) -> (Match);
+  ban : (principal) -> ();
+  change_webhook_url : (text) -> ();
+  get_caller_match : () -> (opt MatchResult) query;
+  get_histories : (principal, nat16, nat16) -> (vec MatchResultHistory) query;
+  get_match : (text) -> (MatchResult) query;
+  get_user : (principal) -> (opt User) query;
+  initialize : (principal, principal, text) -> ();
+  resign : () -> ();
+  transfer_ownership : (principal) -> ();
+  unban : (principal) -> ();
+  webhook_transform : (HttpTransformArgs) -> (HttpResponse) query;
+}
