@@ -1,11 +1,11 @@
 import { Ed25519PublicKey } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
 import { randomUUID } from "node:crypto";
 import { Ed25519KeyIdentity } from "@dfinity/identity";
 import { Router } from "express";
 import { User } from "../models/User";
 import { auth } from "../middlewares/auth";
 import { Token } from "../models/Token";
+import { Principal } from "@dfinity/principal";
 
 const router = Router();
 
@@ -41,13 +41,13 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  let id = pubkey
+  let id = pubkey;
   let isValid = false;
+  const pubkeyBuff = Ed25519PublicKey.fromDer(
+    Buffer.from(pubkey, "hex").buffer
+  ).toRaw();
 
   try {
-    const pubkeyBuff = Ed25519PublicKey.fromDer(
-      Buffer.from(pubkey, "hex").buffer
-    ).toRaw();
     // console.log(pubkeyBuff)
     const dataJSON = {
       purpose: "login",
@@ -72,12 +72,15 @@ router.post("/login", async (req, res) => {
     return res.status(403).json({ status: "bad", detail: "bad signature" });
   }
 
+  const principal = Principal.selfAuthenticating(Buffer.from(pubkeyBuff));
+
   // Check user existence
   let user = await User.findByPk(id);
   if (!user) {
     try {
       user = await User.create({
         id,
+        pricipalId: principal.toText(),
         username: username ?? null,
         first_name: first_name ?? undefined,
         last_name: last_name ?? undefined,
