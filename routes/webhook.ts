@@ -42,11 +42,13 @@ function calculateElo(
 }
 
 router.post("/", async (req, res) => {
-  const { purpose }: { purpose: string } = req.body;
+  const body = JSON.parse(req.body)
+
+  const { purpose }: { purpose: string } = body;
 
   if (purpose == "match_end") {
     setTimeout(async () => {
-      const { match_id }: { match_id: string } = req.body;
+      const { match_id }: { match_id: string } = body;
 
       const key = `match_${match_id}`;
       const lockKey = await lock(key, 20);
