@@ -5,6 +5,7 @@ import { auth } from "../middlewares/auth";
 import { randomBytes, randomUUID } from "node:crypto";
 import { getActor } from "../helpers/icp";
 import { Principal } from "@dfinity/principal";
+import { Op } from "sequelize";
 
 const router = Router();
 
@@ -31,30 +32,19 @@ router.post("/", auth, async (req, res) => {
   if (!user)
     return res.status(401).json({ status: "bad", detail: "unauthorized" });
 
-  const openRoom = await Room.findOne({ where: { userB: null } });
+  const openRoom = await Room.findOne({
+    where: { userB: null, userA: { [Op.ne]: user.id } },
+  });
   if (openRoom) {
     await openRoom.update({ userB: user.id });
 
     const actor = await getActor();
-    const userAPubkey = Buffer.from(openRoom.userA, "hex").toBase64();
-    const userBPubkey = Buffer.from(user.id, "hex").toBase64();
+    const userA = Principal.fromText(openRoom.userA);
+    const userB = Principal.fromText(user.id);
 
-    const expired = Math.floor(Date.now() / 1000) + 300;
+    console.log(userA.toText(), userB.toText());
 
-    // TODO: simpan signature yang valid pada saat masuk room dan oper signature
-    const match = await actor.add_match(
-      {
-        pubkey: userAPubkey,
-        signature: randomBytes(12).toBase64(), // belum ada cek signature jadi random saja
-        expired,
-      },
-      {
-        pubkey: userBPubkey,
-        signature: randomBytes(12).toBase64(), // belum ada cek signature jadi random saja
-        expired,
-      },
-      true
-    );
+    const match = await actor.add_match(userA, userB, true);
 
     await openRoom.update({
       match_id: match["id"],

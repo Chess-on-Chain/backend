@@ -36,7 +36,6 @@ type MatchResultHistory = record {
   white_player : principal;
 };
 type Move = record { time : nat64; to_position : text; from_position : text };
-type Player = record { signature : text; expired : nat32; pubkey : text };
 type User = record {
   id : principal;
   win : nat32;
@@ -46,15 +45,17 @@ type User = record {
 };
 service : () -> {
   accept_ownership : () -> ();
-  add_match : (Player, Player, bool) -> (Match);
+  add_match : (principal, principal, bool) -> (Match);
   add_match_move : (text, text, text, text) -> (Match);
   ban : (principal) -> ();
   change_webhook_url : (text) -> ();
   get_caller_match : () -> (opt MatchResult) query;
   get_histories : (principal, nat16, nat16) -> (vec MatchResultHistory) query;
+  get_login : (text) -> (opt text) query;
   get_match : (text) -> (MatchResult) query;
   get_user : (principal) -> (opt User) query;
   initialize : (principal, principal, text) -> ();
+  login : (text) -> ();
   resign : () -> ();
   transfer_ownership : (principal) -> ();
   unban : (principal) -> ();

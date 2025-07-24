@@ -7,9 +7,9 @@ export class User extends Model {
   @Column(DataType.STRING)
   declare id: string;
 
-  @Column(DataType.STRING)
-  @Unique
-  principalId!: string;
+  // @Unique
+  // @Column(DataType.STRING)
+  // principalId!: string;
 
   @Unique
   @AllowNull(true)

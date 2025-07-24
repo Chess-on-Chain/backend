@@ -1,9 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const Player = IDL.Record({
-    'signature' : IDL.Text,
-    'expired' : IDL.Nat32,
-    'pubkey' : IDL.Text,
-  });
   const Move = IDL.Record({
     'time' : IDL.Nat64,
     'to_position' : IDL.Text,
@@ -58,7 +53,11 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'accept_ownership' : IDL.Func([], [], []),
-    'add_match' : IDL.Func([Player, Player, IDL.Bool], [Match], []),
+    'add_match' : IDL.Func(
+        [IDL.Principal, IDL.Principal, IDL.Bool],
+        [Match],
+        [],
+      ),
     'add_match_move' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Text],
         [Match],
@@ -72,9 +71,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(MatchResultHistory)],
         ['query'],
       ),
+    'get_login' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
     'get_match' : IDL.Func([IDL.Text], [MatchResult], ['query']),
     'get_user' : IDL.Func([IDL.Principal], [IDL.Opt(User)], ['query']),
     'initialize' : IDL.Func([IDL.Principal, IDL.Principal, IDL.Text], [], []),
+    'login' : IDL.Func([IDL.Text], [], []),
     'resign' : IDL.Func([], [], []),
     'transfer_ownership' : IDL.Func([IDL.Principal], [], []),
     'unban' : IDL.Func([IDL.Principal], [], []),

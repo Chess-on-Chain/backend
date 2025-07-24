@@ -47,11 +47,6 @@ export interface Move {
   'to_position' : string,
   'from_position' : string,
 }
-export interface Player {
-  'signature' : string,
-  'expired' : number,
-  'pubkey' : string,
-}
 export interface User {
   'id' : Principal,
   'win' : number,
@@ -61,7 +56,7 @@ export interface User {
 }
 export interface _SERVICE {
   'accept_ownership' : ActorMethod<[], undefined>,
-  'add_match' : ActorMethod<[Player, Player, boolean], Match>,
+  'add_match' : ActorMethod<[Principal, Principal, boolean], Match>,
   'add_match_move' : ActorMethod<[string, string, string, string], Match>,
   'ban' : ActorMethod<[Principal], undefined>,
   'change_webhook_url' : ActorMethod<[string], undefined>,
@@ -70,9 +65,11 @@ export interface _SERVICE {
     [Principal, number, number],
     Array<MatchResultHistory>
   >,
+  'get_login' : ActorMethod<[string], [] | [string]>,
   'get_match' : ActorMethod<[string], MatchResult>,
   'get_user' : ActorMethod<[Principal], [] | [User]>,
   'initialize' : ActorMethod<[Principal, Principal, string], undefined>,
+  'login' : ActorMethod<[string], undefined>,
   'resign' : ActorMethod<[], undefined>,
   'transfer_ownership' : ActorMethod<[Principal], undefined>,
   'unban' : ActorMethod<[Principal], undefined>,
