@@ -9,8 +9,6 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/hdkey": "^2.1.0",
-    "@types/ioredis": "^5.0.0",
-    "@types/redlock": "^4.0.7",
     "axios": "^1.10.0"
   },
   "peerDependencies": {
@@ -20,16 +18,13 @@
     "@dfinity/agent": "2.4.1",
     "@dfinity/identity": "2.4.1",
     "@dfinity/principal": "2.4.1",
-    "@dfinity/standalone-sig-verifier-web": "^1.0.0",
     "bip39": "^3.1.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "hdkey": "^2.1.0",
-    "ioredis": "^5.6.1",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "redis": "^5.6.0",
-    "redlock": "^5.0.0-beta.2",
     "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6",
     "sqlite3": "^5.1.7"

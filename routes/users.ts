@@ -1,13 +1,9 @@
-import { Ed25519PublicKey } from "@dfinity/agent";
 import { createHash, randomUUID } from "node:crypto";
-import { Ed25519KeyIdentity } from "@dfinity/identity";
 import { Router } from "express";
 import { User } from "../models/User";
 import { auth } from "../middlewares/auth";
 import { Token } from "../models/Token";
-import { Principal } from "@dfinity/principal";
-import * as sigVerifier from "@dfinity/standalone-sig-verifier-web";
-import { getActor, getAgent } from "../helpers/icp";
+import { getActor } from "../helpers/icp";
 
 const router = Router();
 

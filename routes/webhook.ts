@@ -3,8 +3,7 @@ import { getActor } from "../helpers/icp";
 import { User } from "../models/User";
 import { sequelize } from "../models/database";
 import { Unique } from "../models/Unique";
-import { getSingletonClient } from "../helpers/redis";
-import Redlock from "redlock";
+import { lock, release } from "../helpers/redis";
 
 const router = Router();
 
@@ -49,14 +48,8 @@ router.post("/", async (req, res) => {
     setTimeout(async () => {
       const { match_id }: { match_id: string } = req.body;
 
-      const redisClient = await getSingletonClient();
-
-      const redlock = new Redlock([redisClient as any], {
-        retryCount: 5,
-        retryDelay: 200, // ms
-      });
-
-      const lock = await redlock.acquire([`lock_match_${match_id}`], 10000);
+      const key = `match_${match_id}`;
+      const lockKey = await lock(key, 20);
 
       const exists =
         (await Unique.count({
@@ -116,7 +109,9 @@ router.post("/", async (req, res) => {
         await transaction.rollback();
         console.log(e);
       } finally {
-        await redlock.release(lock);
+        if (lockKey) {
+          await release(key, lockKey);
+        }
       }
     }, 0);
   }
