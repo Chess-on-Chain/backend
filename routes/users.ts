@@ -22,7 +22,7 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { token: loginToken } = req.body;
+  const { token: loginToken } = JSON.parse(req.body);
 
   const tokenHashed = createHash("sha1")
     .update(Buffer.from(loginToken, "hex"))
@@ -69,7 +69,7 @@ router.patch("/:id", auth, async (req, res) => {
   if (!user)
     return res.status(404).json({ status: "bad", detail: "not found" });
 
-  await user.update(req.body);
+  await user.update(JSON.parse(req.body));
   res.status(204).send();
 });
 
