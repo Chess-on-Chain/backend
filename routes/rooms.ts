@@ -48,9 +48,20 @@ router.post("/", auth, async (req, res) => {
     const userA = Principal.fromText(openRoom.userA);
     const userB = Principal.fromText(user.id);
 
+    if (userA.isAnonymous() || userB.isAnonymous()) {
+      return res
+        .status(403)
+        .json({ status: "bad", detail: "Problem with client wallet" });
+    }
+
     console.log(userA.toText(), userB.toText());
 
-    const match = await actor.add_match(userA, userB, true);
+    let match;
+    try {
+      match = await actor.add_match(userA, userB, true);
+    } catch (e: any) {
+      return res.status(400).json({ status: "bad", detail: e.toString() });
+    }
 
     await openRoom.update({
       match_id: match["id"],
@@ -66,6 +77,15 @@ router.post("/", auth, async (req, res) => {
     });
   } else {
     // const match_id = randomUUID();
+
+    const userA = Principal.fromText(user.id);
+
+    if (userA.isAnonymous()) {
+      return res
+        .status(403)
+        .json({ status: "bad", detail: "Problem with client wallet" });
+    }
+
     const newRoom = await Room.create({ userA: user.id });
     return res.json({
       status: "ok",

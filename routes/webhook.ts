@@ -69,8 +69,6 @@ router.post("/", async (req, res) => {
         return;
       }
 
-      console.log("NYAMPE")
-
       // const transaction = await sequelize.transaction();
 
       try {
@@ -108,7 +106,7 @@ router.post("/", async (req, res) => {
             score: black_player_new_elo,
           });
 
-          console.log(white_player_new_elo, white_player_new_elo);
+          // console.log(white_player_new_elo, white_player_new_elo);
         }
 
         // await transaction.commit();
