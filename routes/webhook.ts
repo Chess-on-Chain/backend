@@ -42,7 +42,8 @@ function calculateElo(
 }
 
 router.post("/", async (req, res) => {
-  const body = JSON.parse(req.body)
+  const body = JSON.parse(req.body);
+  console.log(body);
 
   const { purpose }: { purpose: string } = body;
 
@@ -50,38 +51,44 @@ router.post("/", async (req, res) => {
     setTimeout(async () => {
       const { match_id }: { match_id: string } = body;
 
-      const key = `match_${match_id}`;
-      const lockKey = await lock(key, 20);
-
-      const exists =
-        (await Unique.count({
+      if (
+        await Unique.findOne({
           where: {
             id: match_id,
           },
-        })) >= 1;
+        })
+      ) {
+        return;
+      }
 
-      if (exists) return;
+      try {
+        await Unique.create({
+          id: match_id,
+        });
+      } catch (e) {
+        return;
+      }
 
-      const transaction = await sequelize.transaction();
+      console.log("NYAMPE")
+
+      // const transaction = await sequelize.transaction();
 
       try {
         const actor = await getActor();
         const match = await actor.get_match(match_id);
 
-        const white_player_id = match["white_player"]["id"];
-        const black_player_id = match["black_player"]["id"];
+        const white_player_id = match["white_player"]["id"].toText();
+        const black_player_id = match["black_player"]["id"].toText();
 
         const white_player = await User.findOne({
           where: {
-            principalId: white_player_id,
+            id: white_player_id,
           },
-          transaction,
         });
         const black_player = await User.findOne({
           where: {
-            principalId: black_player_id,
+            id: black_player_id,
           },
-          transaction,
         });
 
         if (white_player && black_player) {
@@ -100,20 +107,18 @@ router.post("/", async (req, res) => {
           await black_player.update({
             score: black_player_new_elo,
           });
+
+          console.log(white_player_new_elo, white_player_new_elo);
         }
 
-        await transaction.commit();
-
-        await Unique.create({
-          id: match_id,
-        });
+        // await transaction.commit();
       } catch (e) {
-        await transaction.rollback();
+        // await transaction.rollback();
         console.log(e);
       } finally {
-        if (lockKey) {
-          await release(key, lockKey);
-        }
+        // if (lockKey) {
+        //   await release(key, lockKey);
+        // }
       }
     }, 0);
   }

@@ -32,8 +32,14 @@ router.post("/", auth, async (req, res) => {
   if (!user)
     return res.status(401).json({ status: "bad", detail: "unauthorized" });
 
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
   const openRoom = await Room.findOne({
-    where: { userB: null, userA: { [Op.ne]: user.id } },
+    where: {
+      userB: null,
+      userA: { [Op.ne]: user.id },
+      createdAt: { [Op.gte]: tenMinutesAgo },
+    },
   });
   if (openRoom) {
     await openRoom.update({ userB: user.id });
